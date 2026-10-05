@@ -10,7 +10,7 @@
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
 <style>
 /* Layout: caderno de confeitaria profissional. Seções escuras de ganache alternam com papel marfim; detalhes em fichas técnicas. */
 :root {
@@ -26,16 +26,16 @@
   --caramelo-2: #ffcf75;
   --ouro: #c99a52;
   --tinta: #2b1814;
-  --tinta-suave: #6d534c;
+  --tinta-suave: #4f3a34;
   --creme-texto: #f6e7df;
-  --creme-suave: #c9aea5;
+  --creme-suave: #e6d3cb;
   --linha-clara: rgba(201, 154, 82, .28);
   --linha-escura: rgba(43, 24, 20, .12);
   --ok: #3c8f5a;
 
-  --f-display: 'Bodoni Moda', 'Didot', 'Bodoni 72', Georgia, serif;
-  --f-corpo: 'Manrope', 'Segoe UI', system-ui, sans-serif;
-  --f-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --f-display: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+  --f-corpo: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+  --f-mono: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
 
   --raio: 18px;
   --max: 1180px;
@@ -452,6 +452,46 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
   .retrato { max-width: 260px; }
   .fita-trilho span { font-size: 1.25rem; }
 }
+
+/* Legibilidade: títulos fortes, texto maior e mais escuro */
+body { font-size: 18px; font-weight: 500; }
+h1, h2, h3 { font-weight: 800; letter-spacing: -.02em; line-height: 1.12; }
+h1 em, h2 em, h3 em { font-style: normal; font-weight: 800; }
+.hero h1 { font-size: clamp(2.4rem, 5.4vw, 4.4rem); font-weight: 800; letter-spacing: -.03em; }
+body { word-spacing: .04em; }
+.hero h1 em, .cta-final h2 em, .titulo-secao em { font-weight: 800; }
+.btn, .marca { white-space: nowrap; }
+@media (max-width: 420px) { .marca { font-size: 1.12rem; } .nav-links a.btn { padding: 11px 16px; font-size: .85rem; } }
+.titulo-secao { font-size: clamp(1.9rem, 4vw, 3rem); }
+.titulo-secao em { font-weight: 800; }
+.cta-final h2 { font-size: clamp(2.1rem, 4.8vw, 3.6rem); font-weight: 800; max-width: 20ch; }
+.sobrelinha { font-size: .86rem; font-weight: 800; letter-spacing: .1em; }
+.fato b { font-size: 2rem; font-weight: 800; }
+.fato span, .cartao-flutuante small, .res-rotulo, .rotulo-col, .bonus-selo, .de-por, .pagamentos span, .etapa .tag-mod, .selo-centro span, .retrato figcaption { font-size: .78rem; font-weight: 700; letter-spacing: .08em; }
+.cf-ficha .linha { font-size: .86rem; font-weight: 600; }
+.cartao-flutuante .valor { font-weight: 800; }
+.fita-trilho span { font-style: normal; font-weight: 800; font-size: 1.35rem; text-transform: uppercase; letter-spacing: .04em; }
+.controle output, .res-tabela dd, .pilha li span:last-child, .soma, .bonus-valor, .mod-meta, .totais { font-weight: 700; }
+.controle .dica, .aviso, .seguro, .nota-editar { font-size: .9rem; }
+.mod-n, .etapa .num { font-style: normal; font-weight: 800; }
+.mod-titulo { font-weight: 800; font-size: 1.25rem; }
+.mod-meta { font-size: .85rem; }
+.aulas li { font-size: 1rem; }
+.depo blockquote { font-style: normal; font-weight: 600; font-size: 1.1rem; line-height: 1.55; }
+.depo-destaque blockquote { font-size: 1.3rem; }
+.faq summary { font-size: 1.15rem; font-weight: 700; }
+.preco, .res-lucro, .selo-centro b { font-weight: 800; }
+.preco .int { letter-spacing: -.05em; }
+.marca { font-style: normal; font-weight: 800; font-size: 1.35rem; }
+.assinatura { font-style: normal; font-weight: 800; font-size: 1.6rem; }
+.col-antes, .col-antes h3 { color: var(--tinta-suave); }
+.pq-nao, .pq-nao h3 { color: var(--tinta-suave); }
+@media (max-width: 760px) {
+  body { font-size: 17px; }
+  .hero h1 { font-size: 2.3rem; }
+  .mod-titulo { font-size: 1.08rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   html { scroll-behavior: auto; }
@@ -907,7 +947,7 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
           <defs><path id="circ" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/></defs>
           <circle cx="100" cy="100" r="96" fill="none" stroke="#c99a52" stroke-width="1.5"/>
           <circle cx="100" cy="100" r="62" fill="none" stroke="#c99a52" stroke-width="1" stroke-dasharray="3 5"/>
-          <text font-family="IBM Plex Mono, monospace" font-size="11" fill="#f1b54a"><textPath href="#circ" textLength="486" lengthAdjust="spacing">GARANTIA INCONDICIONAL · RISCO ZERO · 7 DIAS ·</textPath></text>
+          <text font-family="Plus Jakarta Sans, sans-serif" font-weight="700" font-size="11" fill="#f1b54a"><textPath href="#circ" textLength="486" lengthAdjust="spacing">GARANTIA INCONDICIONAL · RISCO ZERO · 7 DIAS ·</textPath></text>
         </svg>
         <div class="selo-centro"><div><b>7</b><span>dias</span></div></div>
       </div>
