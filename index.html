@@ -1119,7 +1119,23 @@ body { word-spacing: .04em; }
   window.addEventListener('scroll', atualiza, { passive: true });
   // Chat com a Groq. Modo teste: a chave fica visível no código do site (qualquer visitante pode copiá-la).
   const GROQ_API_KEY = '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';
-  const GROQ_MODEL = 'llama-3.3-70b-versatile';
+  // Modelos preferidos, em ordem. Se nenhum existir na conta, o chat escolhe outro modelo de texto disponível.
+  const GROQ_MODELOS_PREFERIDOS = ['openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'openai/gpt-oss-20b', 'llama-3.1-8b-instant'];
+  let modeloEscolhido = null;
+  const modelosFalhos = new Set();
+
+  async function escolheModelo() {
+    if (modeloEscolhido) return modeloEscolhido;
+    const r = await fetch('https://api.groq.com/openai/v1/models', { headers: { 'Authorization': 'Bearer ' + GROQ_API_KEY } });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error('Erro da Groq (' + r.status + '): ' + (d.error?.message || 'não consegui listar os modelos.'));
+    const ids = (d.data || []).filter(m => m.active !== false && !modelosFalhos.has(m.id)).map(m => m.id);
+    const texto = ids.filter(id => !/whisper|tts|guard|playai|orpheus|distil|compound|prompt/i.test(id));
+    modeloEscolhido = GROQ_MODELOS_PREFERIDOS.find(id => ids.includes(id)) || texto[0];
+    if (!modeloEscolhido) throw new Error('Nenhum modelo de texto disponível na sua conta Groq.');
+    console.log('Modelo Groq em uso:', modeloEscolhido);
+    return modeloEscolhido;
+  }
   // Opcional, para produção: endereço de um Worker que guarda a chave (veja o README). Se preenchido, é usado no lugar da chave.
   const CHAT_API_URL = '';
 
@@ -1144,14 +1160,26 @@ Regras: se não souber algo, diga que não tem essa informação e sugira falar 
       return d.reply;
     }
     if (!GROQ_API_KEY) throw new Error('A assistente ainda não foi ativada.');
-    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + GROQ_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: GROQ_MODEL, messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...mensagens], temperature: 0.6, max_tokens: 400 }),
-    });
-    const d = await r.json().catch(() => ({}));
+    let r, d;
+    for (let tentativa = 0; tentativa < 2; tentativa++) {
+      const modelo = await escolheModelo();
+      r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + GROQ_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: modelo, messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...mensagens], temperature: 0.6, max_completion_tokens: 600 }),
+      });
+      d = await r.json().catch(() => ({}));
+      if (r.status === 404 && tentativa === 0) {
+        // Modelo saiu do ar: remove da lista e escolhe outro
+        modelosFalhos.add(modelo);
+        modeloEscolhido = null;
+        continue;
+      }
+      break;
+    }
     if (!r.ok) throw new Error('Erro da Groq (' + r.status + '): ' + (d.error?.message || 'tente de novo em instantes.'));
-    return d.choices?.[0]?.message?.content?.trim() || 'Desculpe, não consegui responder agora.';
+    const texto = (d.choices?.[0]?.message?.content || '').replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    return texto || 'Desculpe, não consegui responder agora.';
   }
 
   const chatBotao = $('chatBotao'), chatPainel = $('chatPainel'), chatMsgs = $('chatMsgs');
