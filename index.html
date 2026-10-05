@@ -42,6 +42,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
@@ -490,6 +491,50 @@ body { word-spacing: .04em; }
   body { font-size: 17px; }
   .hero h1 { font-size: 2.3rem; }
   .mod-titulo { font-size: 1.08rem; }
+}
+
+/* Chat com a assistente */
+.chat-botao {
+  position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 70;
+  display: inline-flex; align-items: center; gap: 10px; border: 0; cursor: pointer;
+  background: var(--framboesa); color: #fff; font-family: var(--f-corpo); font-weight: 800; font-size: .98rem;
+  padding: 16px 22px; border-radius: 999px; box-shadow: 0 18px 40px -12px rgba(200,40,79,.7);
+  transition: transform .2s ease;
+}
+.chat-botao:hover { transform: translateY(-2px); }
+.chat-botao svg { width: 22px; height: 22px; flex: none; }
+.chat-botao .pulso { width: 10px; height: 10px; border-radius: 50%; background: #7ee2a0; box-shadow: 0 0 0 4px rgba(126,226,160,.25); }
+.chat-painel {
+  position: fixed; right: 20px; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 71;
+  width: min(390px, calc(100vw - 32px)); height: min(560px, calc(100vh - 140px));
+  background: var(--marfim); color: var(--tinta); border-radius: 22px; overflow: hidden;
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,.55); border: 1px solid var(--linha-escura);
+  display: flex; flex-direction: column;
+}
+.chat-topo { background: var(--ganache); color: var(--creme-texto); padding: 16px 18px; display: flex; align-items: center; gap: 12px; }
+.chat-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--framboesa); display: grid; place-items: center; font-size: 1.3rem; flex: none; }
+.chat-topo b { display: block; font-size: 1rem; }
+.chat-topo span { font-size: .82rem; color: var(--creme-suave); }
+.chat-fechar { margin-left: auto; background: transparent; border: 0; color: var(--creme-texto); font-size: 1.6rem; line-height: 1; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
+.chat-msgs { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.msg { max-width: 85%; padding: 11px 15px; border-radius: 18px; font-size: .97rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg-bot { background: #fff; border: 1px solid var(--linha-escura); align-self: flex-start; border-bottom-left-radius: 6px; }
+.msg-eu { background: var(--framboesa); color: #fff; align-self: flex-end; border-bottom-right-radius: 6px; }
+.msg-erro { background: #fff1f1; border: 1px solid #f0b8b8; color: #8a1c1c; align-self: flex-start; }
+.digitando { display: inline-flex; gap: 4px; }
+.digitando i { width: 7px; height: 7px; border-radius: 50%; background: var(--tinta-suave); animation: pula 1s infinite ease-in-out; }
+.digitando i:nth-child(2) { animation-delay: .15s; } .digitando i:nth-child(3) { animation-delay: .3s; }
+@keyframes pula { 0%, 80%, 100% { transform: translateY(0); opacity: .5; } 40% { transform: translateY(-5px); opacity: 1; } }
+.chat-sugestoes { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 18px 12px; }
+.chat-sugestoes button { font-family: var(--f-corpo); font-weight: 700; font-size: .85rem; border: 1px solid rgba(200,40,79,.35); color: var(--framboesa); background: #fff; border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.chat-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--linha-escura); background: #fff; }
+.chat-form input { flex: 1; min-width: 0; font-family: var(--f-corpo); font-size: 1rem; font-weight: 500; border: 1px solid var(--linha-escura); border-radius: 999px; padding: 12px 16px; color: var(--tinta); background: var(--marfim); }
+.chat-form button { border: 0; border-radius: 999px; background: var(--caramelo); color: var(--ganache); font-weight: 800; font-family: var(--f-corpo); padding: 0 18px; cursor: pointer; }
+.chat-form button:disabled { opacity: .5; cursor: default; }
+@media (max-width: 760px) {
+  .chat-botao { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); right: 16px; padding: 14px; }
+  .chat-botao .rotulo, .chat-botao .pulso { display: none; }
+  .chat-painel { right: 16px; bottom: calc(150px + env(safe-area-inset-bottom, 0px)); height: min(520px, calc(100vh - 190px)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1000,6 +1045,32 @@ body { word-spacing: .04em; }
   <a href="#oferta" class="btn">Garantir vaga <span class="seta" aria-hidden="true">→</span></a>
 </div>
 
+<!-- Chat com a assistente (Groq, via Worker) -->
+<button class="chat-botao" id="chatBotao" type="button" aria-expanded="false" aria-controls="chatPainel">
+  <span class="pulso" aria-hidden="true"></span>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+  <span class="rotulo">Tire suas dúvidas</span>
+</button>
+<section class="chat-painel" id="chatPainel" aria-label="Chat com a assistente" hidden>
+  <div class="chat-topo">
+    <span class="chat-avatar" aria-hidden="true">🎂</span>
+    <div><b>Assistente Bolos que Vendem</b><span>Responde na hora</span></div>
+    <button class="chat-fechar" id="chatFechar" type="button" aria-label="Fechar chat">×</button>
+  </div>
+  <div class="chat-msgs" id="chatMsgs" aria-live="polite">
+    <div class="msg msg-bot">Oi! 👋 Sou a assistente do curso. Pode perguntar o que quiser sobre as aulas, o pagamento ou a garantia.</div>
+  </div>
+  <div class="chat-sugestoes" id="chatSugestoes">
+    <button type="button">Preciso de experiência?</button>
+    <button type="button">Como funciona a garantia?</button>
+    <button type="button">Quais as formas de pagamento?</button>
+  </div>
+  <form class="chat-form" id="chatForm">
+    <input id="chatInput" type="text" placeholder="Digite sua pergunta..." autocomplete="off" maxlength="500" aria-label="Sua mensagem">
+    <button type="submit" id="chatEnviar">Enviar</button>
+  </form>
+</section>
+
 <script>
   // Cole aqui o link do seu checkout (Hotmart, Kiwify, Eduzz etc.)
   const CHECKOUT_URL = '';
@@ -1046,6 +1117,64 @@ body { word-spacing: .04em; }
   }
   function atualiza() { fixo.classList.toggle('mostrar', window.scrollY > 700 && !ofertaVisivel); }
   window.addEventListener('scroll', atualiza, { passive: true });
+  // Chat: endereço do seu Cloudflare Worker (veja o README). A chave da Groq fica no Worker, nunca aqui.
+  const CHAT_API_URL = '';
+
+  const chatBotao = $('chatBotao'), chatPainel = $('chatPainel'), chatMsgs = $('chatMsgs');
+  const chatForm = $('chatForm'), chatInput = $('chatInput'), chatEnviar = $('chatEnviar');
+  const historico = [];
+
+  function abreChat(abrir) {
+    chatPainel.hidden = !abrir;
+    chatBotao.setAttribute('aria-expanded', String(abrir));
+    if (abrir) chatInput.focus();
+  }
+  chatBotao.addEventListener('click', () => abreChat(chatPainel.hidden));
+  $('chatFechar').addEventListener('click', () => abreChat(false));
+
+  function addMsg(texto, tipo) {
+    const el = document.createElement('div');
+    el.className = 'msg ' + tipo;
+    el.textContent = texto;
+    chatMsgs.appendChild(el);
+    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    return el;
+  }
+
+  async function enviar(texto) {
+    texto = texto.trim();
+    if (!texto) return;
+    $('chatSugestoes').hidden = true;
+    addMsg(texto, 'msg-eu');
+    historico.push({ role: 'user', content: texto });
+    chatInput.value = '';
+    chatEnviar.disabled = true;
+
+    const aguarde = addMsg('', 'msg-bot');
+    aguarde.innerHTML = '<span class="digitando"><i></i><i></i><i></i></span>';
+
+    try {
+      if (!CHAT_API_URL) throw new Error('A assistente ainda não foi ativada. Configure o CHAT_API_URL com o endereço do seu Worker.');
+      const r = await fetch(CHAT_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: historico.slice(-12) }),
+      });
+      const dados = await r.json().catch(() => ({}));
+      if (!r.ok || !dados.reply) throw new Error(dados.error || 'Não consegui responder agora. Tente de novo em instantes.');
+      aguarde.textContent = dados.reply;
+      historico.push({ role: 'assistant', content: dados.reply });
+    } catch (e) {
+      aguarde.className = 'msg msg-erro';
+      aguarde.textContent = e.message;
+      historico.pop();
+    } finally {
+      chatEnviar.disabled = false;
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    }
+  }
+  chatForm.addEventListener('submit', e => { e.preventDefault(); enviar(chatInput.value); });
+  $('chatSugestoes').querySelectorAll('button').forEach(b => b.addEventListener('click', () => enviar(b.textContent)));
 </script>
 </body>
 </html>
