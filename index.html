@@ -1117,8 +1117,42 @@ body { word-spacing: .04em; }
   }
   function atualiza() { fixo.classList.toggle('mostrar', window.scrollY > 700 && !ofertaVisivel); }
   window.addEventListener('scroll', atualiza, { passive: true });
-  // Chat: endereço do seu Cloudflare Worker (veja o README). A chave da Groq fica no Worker, nunca aqui.
+  // Chat com a Groq. Modo teste: a chave fica visível no código do site (qualquer visitante pode copiá-la).
+  const GROQ_API_KEY = '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';
+  const GROQ_MODEL = 'llama-3.3-70b-versatile';
+  // Opcional, para produção: endereço de um Worker que guarda a chave (veja o README). Se preenchido, é usado no lugar da chave.
   const CHAT_API_URL = '';
+
+  const SYSTEM_PROMPT = `Você é a assistente virtual do curso online "Bolos que Vendem".
+Responda sempre em português do Brasil, de forma simpática, curta (no máximo 4 frases) e objetiva.
+Seu objetivo é tirar dúvidas e ajudar a pessoa a decidir pela compra, sem pressão e sem inventar informações.
+Fatos do curso:
+- Curso online de confeitaria, do zero às primeiras encomendas.
+- 6 módulos e 48 aulas em vídeo (cerca de 8h42min): Fundamentos; Massas que não falham; Recheios e caldas; Montagem e estrutura; Decoração profissional; Do hobby ao negócio (precificação, cardápio, fotos, Instagram e WhatsApp).
+- Bônus: Planilha de Precificação, 30 Receitas de Bolo de Pote, Scripts de Venda no WhatsApp.
+- Preço: 12x de R$ 9,74 ou R$ 97 à vista no Pix. Pagamento por Pix, cartão ou boleto.
+- Acesso por 1 ano, certificado de conclusão e suporte para dúvidas.
+- Garantia incondicional de 7 dias com reembolso de 100%.
+- Não precisa de experiência nem de equipamentos caros.
+Regras: se não souber algo, diga que não tem essa informação e sugira falar com o suporte. Nunca prometa ganhos garantidos. Quando fizer sentido, convide a pessoa a garantir a vaga na seção de oferta da página.`;
+
+  async function perguntaIA(mensagens) {
+    if (CHAT_API_URL) {
+      const r = await fetch(CHAT_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: mensagens }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.reply) throw new Error(d.error || 'Não consegui responder agora. Tente de novo em instantes.');
+      return d.reply;
+    }
+    if (!GROQ_API_KEY) throw new Error('A assistente ainda não foi ativada.');
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + GROQ_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: GROQ_MODEL, messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...mensagens], temperature: 0.6, max_tokens: 400 }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error('Erro da Groq (' + r.status + '): ' + (d.error?.message || 'tente de novo em instantes.'));
+    return d.choices?.[0]?.message?.content?.trim() || 'Desculpe, não consegui responder agora.';
+  }
 
   const chatBotao = $('chatBotao'), chatPainel = $('chatPainel'), chatMsgs = $('chatMsgs');
   const chatForm = $('chatForm'), chatInput = $('chatInput'), chatEnviar = $('chatEnviar');
@@ -1154,16 +1188,9 @@ body { word-spacing: .04em; }
     aguarde.innerHTML = '<span class="digitando"><i></i><i></i><i></i></span>';
 
     try {
-      if (!CHAT_API_URL) throw new Error('A assistente ainda não foi ativada. Configure o CHAT_API_URL com o endereço do seu Worker.');
-      const r = await fetch(CHAT_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: historico.slice(-12) }),
-      });
-      const dados = await r.json().catch(() => ({}));
-      if (!r.ok || !dados.reply) throw new Error(dados.error || 'Não consegui responder agora. Tente de novo em instantes.');
-      aguarde.textContent = dados.reply;
-      historico.push({ role: 'assistant', content: dados.reply });
+      const resposta = await perguntaIA(historico.slice(-12));
+      aguarde.textContent = resposta;
+      historico.push({ role: 'assistant', content: resposta });
     } catch (e) {
       aguarde.className = 'msg msg-erro';
       aguarde.textContent = e.message;

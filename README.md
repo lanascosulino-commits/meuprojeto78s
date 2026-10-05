@@ -25,9 +25,13 @@ Página de vendas (landing page) para um curso online de bolos. É um único arq
 
 ## Chat com a assistente (Groq)
 
-A página tem um botão **"Tire suas dúvidas"** que abre um chat com IA. A chave da Groq **não fica no site**: o GitHub Pages é público e qualquer visitante poderia copiá-la. Ela fica guardada como segredo em um Cloudflare Worker gratuito, que conversa com a Groq em nome do site.
+A página tem um botão **"Tire suas dúvidas"** que abre um chat com IA.
 
-### Como ativar (cerca de 10 minutos, sem instalar nada)
+**Modo teste (atual):** a chave da Groq está em `GROQ_API_KEY`, no final do `index.html`, e o chat chama a Groq direto do navegador. Qualquer visitante pode copiar essa chave, então use só uma chave descartável e apague-a em https://console.groq.com/keys quando terminar os testes.
+
+**Modo produção:** guarde a chave como segredo em um Cloudflare Worker gratuito, que conversa com a Groq em nome do site. Siga os passos abaixo e depois apague o valor de `GROQ_API_KEY` no `index.html`.
+
+### Como ativar o modo produção (cerca de 10 minutos, sem instalar nada)
 
 1. Crie uma conta gratuita em https://dash.cloudflare.com.
 2. No menu, abra **Workers & Pages → Create → Create Worker**, dê o nome `bolos-chat` e clique em **Deploy**.
@@ -40,4 +44,3 @@ A página tem um botão **"Tire suas dúvidas"** que abre um chat com IA. A chav
 
 O que a assistente sabe sobre o curso (preço, módulos, garantia) está no início de `worker/groq-chat.js`, em `SYSTEM_PROMPT`. Se mudar algo no curso, atualize ali também.
 
-> Nunca coloque a chave `gsk_...` no `index.html` nem em nenhum arquivo do repositório.
