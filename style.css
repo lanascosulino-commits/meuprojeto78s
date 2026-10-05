@@ -235,7 +235,7 @@ h3 { font-size: 1.25rem; margin-bottom: .5rem; }
   .section { padding: 56px 0; }
   .hero { padding: 36px 0 56px; }
   .hero-grid { grid-template-columns: 1fr; gap: 24px; }
-  .hero-visual { min-height: 0; height: 230px; overflow: hidden; }
+  .hero-visual { min-height: 0; height: 240px; align-items: flex-start; padding-top: 8px; }
   .cake { transform: scale(.75); transform-origin: center top; }
   .badge-float { display: none; }
   .hero-text { text-align: center; }
