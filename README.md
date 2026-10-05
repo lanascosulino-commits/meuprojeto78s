@@ -1,6 +1,6 @@
 # Bolos que Vendem: página de vendas
 
-Página de vendas (landing page) para um curso online de bolos, feita em HTML e CSS puros, sem precisar de compilação.
+Página de vendas (landing page) para um curso online de bolos. É um único arquivo, `index.html`, com HTML, CSS e JavaScript, sem precisar de compilação.
 
 ## Como publicar no GitHub Pages
 
@@ -13,11 +13,12 @@ Página de vendas (landing page) para um curso online de bolos, feita em HTML e 
 
 | O quê | Onde |
 |---|---|
-| Link do checkout (Hotmart, Kiwify, Eduzz…) | `index.html`, procure `SEU-LINK-DE-CHECKOUT` |
-| Preço e parcelamento | `index.html`, seção `#oferta`, e o botão fixo `stickyCta` |
+| Link do checkout (Hotmart, Kiwify, Eduzz…) | `index.html`, no final do arquivo: `const CHECKOUT_URL = '...'` |
+| Preço e parcelamento | `index.html`, seção `#oferta` e o botão fixo `ctaFixo` |
 | Nome e história da professora | `index.html`, seção "Quem vai te ensinar" |
 | Depoimentos **reais** das alunas | `index.html`, seção "Quem fez, aprovou" |
-| Foto do bolo no topo | `index.html`, substitua o bloco `.cake` por uma `<img>` |
-| Cores | `style.css`, variáveis em `:root` |
+| Ilustração do bolo no topo | `index.html`, substitua o `<svg>` dentro de `.palco` por uma `<img>` com a sua foto |
+| Custo médio por quilo da calculadora | `index.html`, `const CUSTO_KG = 28` |
+| Cores e fontes | `index.html`, variáveis em `:root` |
 
 > Use apenas depoimentos, números e prazos verdadeiros: além de ser exigido pelo Código de Defesa do Consumidor, isso evita bloqueios nas plataformas de pagamento e anúncios.
